@@ -1,0 +1,81 @@
+RELEASE NOTES
+-----------------------------------------------------
+1) Prereq: get a new instance running in AWS and ssh ready. 
+-----------------------------------------------------
+2) Install Tomcat on the new instance:
+sudo apt update
+sudo apt install default-jdk
+wget http://www-us.apache.org/dist/tomcat/tomcat-9/v9.0.39/bin/apache-tomcat-9.0.39.tar.gz
+tar xzf apache-tomcat-9.0.39.tar.gz
+sudo mv apache-tomcat-9.0.39 /usr/local/tomcat9
+/usr/local/tomcat9/./bin/startup.sh
+
+# test tomcat on port 8080
+# change port 8080 to 80
+nano /usr/local/tomcat9/conf/server.xml
+
+sudo apt install authbind
+sudo touch /etc/authbind/byport/80 
+sudo chmod 500 /etc/authbind/byport/80 
+sudo chown ubuntu /etc/authbind/byport/80
+nano /usr/local/tomcat9/bin/startup.sh
+/*
+Change in "/usr/local/tomcat9/bin/startup.sh"
+OLD: 
+exec "$PRGDIR"/"$EXECUTABLE" start "$@
+NEW: 
+exec authbind --deep "$PRGDIR"/"$EXECUTABLE" start "$@"
+*/
+/usr/local/tomcat9/./bin/shutdown.sh
+
+3) Install AXIS2 on the new instance:
+
+sudo apt install zip
+cd /usr/local/tomcat9/webapps/
+wget https://apache.claz.org/axis/axis2/java/core/1.7.9/axis2-1.7.9-war.zip
+unzip axis2-1.7.9-war.zip
+rm -rf axis2-1.7.9-war.zip 
+
+# Test it using a browser on your local machine:
+IPAddress/axis2/services/listServices
+
+-----------------------------------------------------
+4) Publish Service on Tomcat:
+
+# Local Changes
+Place your pem file in the server folder.
+Edit server/move.sh file with correct pem name and ip address.
+Execute move.sh file to copy the services folder to server.
+Windows users, please execute the command manually.
+
+# Server
+cd /home/ubuntu/dob-service
+./publish.sh
+# After one minute the service will be published on the tomcat as a web service. A new WSDL will be available. Test it using a browser on your local machine:
+IPAddress/axis2/services/listServices
+-----------------------------------------------------
+
+5) Consume Services on Tomcat using Java:
+# Local Changes
+Edit client/dob-client/driver.sh file with correct wsdl. [use backslash to escape ? literal in the URL]
+Execute driver.sh file to consume the web service as a client. 
+
+Windows users, please use driver.bat file.
+
+
+# If Java_Home is not set, then this may throw an error. We need to run the following commands to set the Java_Home for linux/mac users. Please use the correct jdk version and path on your laptop.  
+
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-13.0.1.jdk/Contents/Home
+nano ~/.bash_profile 
+source ~/.bash_profile
+echo $JAVA_HOME
+
+-----------------------------------------------------
+6) Consume Services on Tomcat using Python (zeep library), that is cross compatibility (Python-Java)
+# Local Changes
+Edit client/dob-client/soaptest.py file with correct wsdl. [No escape neeed in the URL]
+Prereq: We should have installed python and pipinstall on our laptop to proceed. 
+pip install zeep
+Execute soaptest.py file to consume the web service as a client. 
+
+# We will try out all these steps in our upcoming lab, and also try out a calculator example. 
