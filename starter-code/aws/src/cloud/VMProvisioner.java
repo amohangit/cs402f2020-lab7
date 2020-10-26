@@ -91,6 +91,23 @@ public class VMProvisioner {
         }
         return ips;
     }
+    public void terminate(String instanceID){
+        describeInstances();
+        System.out.println("#terminating running instances");
+        ArrayList<String> instanceIdsToTerminate = new ArrayList<String>();
+        for (Instance ins : instances){
+            String instanceId = ins.getInstanceId();
+            InstanceState is = ins.getState();
+            if (is.getName().equalsIgnoreCase("running"))
+                instanceIdsToTerminate.add(instanceId);
+        }
+        if (instanceIdsToTerminate.size() > 0){
+            TerminateInstancesRequest terminateRequest = new TerminateInstancesRequest(instanceIdsToTerminate);
+            ec2.terminateInstances(terminateRequest);
+        }
+        else
+            System.out.println("No instances to terminate!");
+    }
     public void terminateInstances(){
         describeInstances();
         System.out.println("#terminating running instances");
