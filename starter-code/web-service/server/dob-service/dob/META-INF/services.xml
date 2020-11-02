@@ -1,7 +1,0 @@
-<service name="DobService">
-   <description>This is the Date of Birth service</description>
-   <parameter name="ServiceClass">com.web.DobService</parameter>
-   <operation name="getYear">
-      <messageReceiver class="org.apache.axis2.rpc.receivers.RPCMessageReceiver"/>
-   </operation> 
-</service>
